@@ -24,6 +24,7 @@ $ python setup.py install
 ### Read
 Read wave from ibw file:
 ```python
+import ibwpy as ip
 test_wave = ip.load("test_wave.ibw")
 print(test_wave)
 ```
