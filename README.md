@@ -2,6 +2,16 @@
 Read and write Igor binary wave with Python
 
 ## Installation
+### Install with pip
+1. download wheel package from https://github.com/MiLL4U/ibwpy/tree/main/wheel_package
+
+2. Install ibwpy with pip
+```bash
+$ python -m pip install ibwpy-x.y.z-py3-none-any.whl
+```
+<span style="color: #FFAAAA">(replace x.y.z with the version of ibwpy which you downloaded)</span>
+
+### Install with git clone
 1. Clone this repository
 
 ```bash
