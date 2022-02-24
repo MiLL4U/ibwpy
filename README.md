@@ -1,5 +1,5 @@
 # ibwpy
-Read and write Igor binary wave with Python
+Read and write [Igor Pro](https://www.wavemetrics.com/) files (Igor binary wave) with Python
 
 ## Installation
 ### Install with pip
