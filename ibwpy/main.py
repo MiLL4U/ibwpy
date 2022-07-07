@@ -333,7 +333,7 @@ class BinaryWave5:
         res.__initialize_modify_time()
         return res
 
-    def save(self, path: str) -> None:
+    def save(self, path: str = None) -> None:
         header_buf = self.__header.buffer
         values_buf = self.__values.tobytes(order='F')
 
@@ -360,6 +360,8 @@ class BinaryWave5:
             + dependency_formula_buf + note_buf \
             + ex_data_unit_buf + ex_dim_units_buf
 
+        if path is None:
+            path = self.name + ".ibw"
         with open(path, mode='wb') as f:
             f.write(buffer)
 
