@@ -1,7 +1,7 @@
 import ibwpy as ip
 import numpy as np
 
-PATH = "testwave.ibw"
+PATH = "test_wave.ibw"
 
 wave = ip.load(PATH)
 print(wave.shape)
@@ -25,6 +25,7 @@ print(wave.axes_unit)
 
 print(wave.calculated_axis_wave(1))
 wave.set_axis_scale(1, 10, -0.1)
+print(wave.axis_scale(1))
 print(wave.calculated_axis_wave(1))
 
 print(wave.data_scale)

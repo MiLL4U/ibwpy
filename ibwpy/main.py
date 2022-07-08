@@ -273,6 +273,9 @@ class BinaryWave5:
         self.__update_modify_time()
         return self
 
+    def axis_scale(self, axis_index: int) -> Tuple[float, float]:
+        return self.__header.axis_scale(axis_index)
+
     def calculated_axis_wave(self, axis_index: int) -> np.ndarray:
         return self.__header.calculated_axis_wave(axis_index)
 
@@ -615,6 +618,11 @@ class BinaryWaveHeader5:
         self.__axes_start = res_starts
         self.__axes_delta = res_deltas
         return self
+
+    def axis_scale(self, axis_index: int) -> Tuple[float, float]:
+        if not self.__is_valid_axis_index(axis_index):
+            raise ValueError('invalid axis_index')
+        return (self.__axes_start[axis_index], self.__axes_delta[axis_index])
 
     def initialize_axis_label_size(self) -> BinaryWaveHeader5:
         self.__axes_label_size = DEFAULT_AXES_LABEL_SIZE
