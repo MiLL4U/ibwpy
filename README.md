@@ -2,7 +2,13 @@
 Read and write [Igor Pro](https://www.wavemetrics.com/) files (Igor binary wave) with Python
 
 ## Installation
-### Install with pip
+### Install with pip (using Git, recommended)
+1. Install ibwpy with pip
+```bash
+$ python -m pip install git+https://github.com/MiLL4U/ibwpy.git
+```
+
+### Install with pip (without Git)
 1. download a wheel package (*.whl) from [Releases](https://github.com/MiLL4U/ibwpy/releases)
 
 2. Install ibwpy with pip
