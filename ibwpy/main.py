@@ -12,6 +12,7 @@ from typing_extensions import Literal, TypedDict
 
 BIN_HEADER_SIZE = 64
 WAVE_HEADER_SIZE = 320
+MAX_WFM_SIZE = 2 ** 32 // 2 - 1
 VALID_DTYPES = ['float32', 'float64', 'int8', 'int16', 'int32']
 DTypes = Literal['float32', 'float64', 'int8', 'int16', 'int32']
 
@@ -574,7 +575,8 @@ class BinaryWaveHeader5:
         if not isinstance(axis_index, int):
             raise TypeError('axis_index must be passed as an integer')
         if not 0 <= axis_index < self.ndim:
-            raise KeyError('this wave has only {} dimensions'.format(self.ndim))
+            raise KeyError(
+                'this wave has only {} dimensions'.format(self.ndim))
         return True
 
     def set_axis_unit(self, axis_index: int, unit: str) -> BinaryWaveHeader5:
@@ -716,6 +718,10 @@ class BinaryWaveHeader5:
         version = 5
         checksum = 0  # temporal value
         wfm_size = WAVE_HEADER_SIZE + self.__type_size * self.__npnts
+        if wfm_size > MAX_WFM_SIZE:
+            raise ValueError(
+                "array size exceeds the ibw file limit "
+                f"({MAX_WFM_SIZE - WAVE_HEADER_SIZE:,} bytes)")
         formula_size = self.formula_size
         note_size = self.note_size
         data_eunits_size = self.__ex_data_unit_size
