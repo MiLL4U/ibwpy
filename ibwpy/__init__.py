@@ -9,8 +9,8 @@ Provides
 
 import numpy as np
 from typing import Union, List, Tuple
-from ibwpy.main import DTypes, DEFAULT_DTYPE
-from ibwpy.main import BinaryWave5, BinaryWaveHeader5, BinaryWave5Loader
+from .main import DTypes, DEFAULT_DTYPE
+from .main import BinaryWave5, BinaryWaveHeader5, BinaryWave5Loader
 
 
 def make(shape: Union[List[int], Tuple[int, ...]],
