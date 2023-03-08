@@ -1,11 +1,13 @@
 import setuptools
 
+
 def _requires_from_file(filename):
     return open(filename).read().splitlines()
 
+
 setuptools.setup(
     name="ibwpy",
-    version="1.0.1",
+    version="1.0.2",
     install_requires=_requires_from_file('requirements.txt'),
     author="Hiroaki Takahashi",
     author_email="aphiloboe@gmail.com",
