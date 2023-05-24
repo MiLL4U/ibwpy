@@ -9,12 +9,12 @@ Provides
 
 import numpy as np
 from typing import Union, List, Tuple
-from .main import DTypes, DEFAULT_DTYPE
+from .constants import IBWDType, DEFAULT_DTYPE
 from .main import BinaryWave5, BinaryWaveHeader5, BinaryWave5Loader
 
 
 def make(shape: Union[List[int], Tuple[int, ...]],
-         name: str, dtype: DTypes = DEFAULT_DTYPE) -> BinaryWave5:
+         name: str, dtype: IBWDType = DEFAULT_DTYPE) -> BinaryWave5:
     shape_tuple = tuple(shape)
     header = BinaryWaveHeader5(shape=shape_tuple, name=name, dtype=dtype)
     zeros = np.zeros(shape, dtype=dtype)

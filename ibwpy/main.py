@@ -9,36 +9,10 @@ from typing import List, Tuple, Union, cast
 
 import numpy as np
 
-from .constants import DTypes
+from .constants import (DATETIME_OFFSET, DEFAULT_DTYPE, MAX_WAVE_NAME_LENGTH,
+                        TEXT_ENCODE, TEXT_ENCODE_2ND, WAVE_HEADER_SIZE,
+                        IBWDType)
 from .typeddicts import BinaryHeaderValues, SectionSizes, WaveHeaderValues
-
-BIN_HEADER_SIZE = 64
-WAVE_HEADER_SIZE = 320
-MAX_WFM_SIZE = 2 ** 32 // 2 - 1
-VALID_DTYPES = ['float32', 'float64', 'int8', 'int16', 'int32']
-
-
-WAVETYPES = {0: 'text', 1: 'complex', 2: 'float32',
-             4: 'float64', 8: 'int8', 0x10: 'int16', 0x20: 'int32',
-             0x40: 'unsigned'}
-DTYPE_IDS = {'float32': 2, 'float64': 4,
-             'int8': 8, 'int16': 0x10, 'int32': 0x20}
-DTYPE_BYTES = {'float32': 4, 'float64': 8,
-               'int8': 1, 'int16': 2, 'int32': 4}
-DATETIME_OFFSET = datetime.datetime(1904, 1, 1, 0, 0, 0)
-
-MAX_WAVE_NAME_LENGTH = 31
-MAX_NDIM = 4
-DEFAULT_WAVE_NAME = 'wave'
-DEFAULT_DTYPE: DTypes = 'float32'
-TEXT_ENCODE = 'utf-8'
-TEXT_ENCODE_2ND = 'shift_jis'
-DEFAULT_EOL = '\n'
-
-DEFAULT_AXES_UNIT = ('', '', '', '')
-DEFAULT_AXES_START = (0., 0., 0., 0.)
-DEFAULT_AXES_DELTA = (1., 1., 1., 1.)
-DEFAULT_AXES_LABEL_SIZE = (0, 0, 0, 0)
 
 
 def decode_unicode(text_buf: bytes):
@@ -50,6 +24,8 @@ def decode_unicode(text_buf: bytes):
 
 
 class BinaryWave5:
+    DEFAULT_EOL = '\n'
+
     def __init__(self,
                  ibw_header: BinaryWaveHeader5,
                  wave_values: np.ndarray,
@@ -373,12 +349,14 @@ class BinaryWave5:
 
 
 class BinaryWave5Loader:
+    BIN_HEADER_SIZE = 64
+
     def __init__(self, path: str) -> None:
         self.path = path
 
     def __has_valid_checksum(self) -> bool:
         with open(self.path, mode='rb') as f:
-            header_buf = f.read(BIN_HEADER_SIZE + WAVE_HEADER_SIZE)
+            header_buf = f.read(self.BIN_HEADER_SIZE + WAVE_HEADER_SIZE)
             values = np.array(struct.unpack("192h", header_buf))
             checksum = np.sum(values, dtype=np.int16)
 
@@ -390,7 +368,7 @@ class BinaryWave5Loader:
 
         header_loader = BinaryWaveHeader5Loader()
         with open(self.path, mode='rb') as f:
-            bin_header_buf = f.read(BIN_HEADER_SIZE)
+            bin_header_buf = f.read(self.BIN_HEADER_SIZE)
             wave_header_buf = f.read(WAVE_HEADER_SIZE)
             header = header_loader.load_from_buffer(
                 bin_header_buf, wave_header_buf)
@@ -438,6 +416,20 @@ class BinaryWave5Loader:
 
 
 class BinaryWaveHeader5:
+    DEFAULT_AXES_UNIT = ('', '', '', '')
+    DEFAULT_AXES_START = (0., 0., 0., 0.)
+    DEFAULT_AXES_DELTA = (1., 1., 1., 1.)
+    DEFAULT_AXES_LABEL_SIZE = (0, 0, 0, 0)
+    DTYPE_IDS = {'float32': 2, 'float64': 4,
+                 'int8': 8, 'int16': 0x10, 'int32': 0x20}
+    DTYPE_BYTES = {'float32': 4, 'float64': 8,
+                   'int8': 1, 'int16': 2, 'int32': 4}
+    VALID_DTYPES = ['float32', 'float64', 'int8', 'int16', 'int32']
+
+    MAX_WFM_SIZE = 2 ** 32 // 2 - 1
+
+    MAX_NDIM = 4
+
     def __init__(
             self, shape: Tuple[int, ...], name: str, dtype: str = DEFAULT_DTYPE,
             formula_size: int = 0, note_size: int = 0,
@@ -466,17 +458,19 @@ class BinaryWaveHeader5:
         self.formula_size = formula_size  # must updated in loading/writing wave
         self.note_size = note_size  # must updated in loading/writing wave
         self.__data_unit = data_unit
-        self.__axes_unit = axes_unit if axes_unit else DEFAULT_AXES_UNIT
+        self.__axes_unit = axes_unit if axes_unit else self.DEFAULT_AXES_UNIT
         """
         <NOTE>
         data_unit stores a data unit string when (data unit length) <= 3 or
         the size of a data unit string when (data unit length) > 3.
         It is the same in axes_unit (list of dimension units).
         """
-        self.__axes_start = axes_start if axes_start else DEFAULT_AXES_START
-        self.__axes_delta = axes_delta if axes_delta else DEFAULT_AXES_DELTA
+        self.__axes_start = axes_start if axes_start \
+            else self.DEFAULT_AXES_START
+        self.__axes_delta = axes_delta if axes_delta \
+            else self.DEFAULT_AXES_DELTA
         self.__axes_label_size = axes_label_size if axes_label_size  \
-            else DEFAULT_AXES_LABEL_SIZE
+            else self.DEFAULT_AXES_LABEL_SIZE
         self.__creation_time = creation_time
         self.__modify_time = modify_time
         self.__data_scale = data_scale
@@ -517,8 +511,9 @@ class BinaryWaveHeader5:
         if not all([isinstance(size, int) and size > 0 for size in shape]):
             raise ValueError(
                 'shape must be passed as a tuple of positive integer(s)')
-        if len(shape) > MAX_NDIM:
-            raise ValueError('max number of dimension is {}'.format(MAX_NDIM))
+        if len(shape) > self.MAX_NDIM:
+            raise ValueError(
+                'max number of dimension is {}'.format(self.MAX_NDIM))
         return True
 
     def reshape(self, shape: Tuple[int, ...]) -> BinaryWaveHeader5:
@@ -530,10 +525,10 @@ class BinaryWaveHeader5:
         self.__shape = shape
 
         # following informations will initialized
-        self.__axes_unit = DEFAULT_AXES_UNIT
-        self.__axes_start = DEFAULT_AXES_START
-        self.__axes_delta = DEFAULT_AXES_DELTA
-        self.__axes_label_size = DEFAULT_AXES_LABEL_SIZE
+        self.__axes_unit = self.DEFAULT_AXES_UNIT
+        self.__axes_start = self.DEFAULT_AXES_START
+        self.__axes_delta = self.DEFAULT_AXES_DELTA
+        self.__axes_label_size = self.DEFAULT_AXES_LABEL_SIZE
 
         return self
 
@@ -548,7 +543,7 @@ class BinaryWaveHeader5:
     def is_valid_dtype(self, dtype: str) -> bool:
         if not isinstance(dtype, str):
             raise TypeError('data type must be passed as string')
-        if dtype not in VALID_DTYPES:
+        if dtype not in self.VALID_DTYPES:
             raise TypeError('invalid data type')
         return True
 
@@ -629,7 +624,7 @@ class BinaryWaveHeader5:
         return (self.__axes_start[axis_index], self.__axes_delta[axis_index])
 
     def initialize_axis_label_size(self) -> BinaryWaveHeader5:
-        self.__axes_label_size = DEFAULT_AXES_LABEL_SIZE
+        self.__axes_label_size = self.DEFAULT_AXES_LABEL_SIZE
         return self
 
     @property
@@ -676,7 +671,7 @@ class BinaryWaveHeader5:
 
     @property
     def __type_size(self) -> int:
-        return DTYPE_BYTES[self.__dtype]
+        return self.DTYPE_BYTES[self.__dtype]
 
     @property
     def __ex_data_unit_size(self) -> int:
@@ -720,10 +715,10 @@ class BinaryWaveHeader5:
         version = 5
         checksum = 0  # temporal value
         wfm_size = WAVE_HEADER_SIZE + self.__type_size * self.__npnts
-        if wfm_size > MAX_WFM_SIZE:
+        if wfm_size > self.MAX_WFM_SIZE:
             raise ValueError(
                 "array size exceeds the ibw file limit "
-                f"({MAX_WFM_SIZE - WAVE_HEADER_SIZE:,} bytes)")
+                f"({self.MAX_WFM_SIZE - WAVE_HEADER_SIZE:,} bytes)")
         formula_size = self.formula_size
         note_size = self.note_size
         data_eunits_size = self.__ex_data_unit_size
@@ -747,7 +742,7 @@ class BinaryWaveHeader5:
         creation_time = self.__datetime_to_num(self.__creation_time)
         mod_time = self.__datetime_to_num(self.__modify_time)
         npnts = self.__npnts
-        type_ = DTYPE_IDS[self.__dtype]
+        type_ = self.DTYPE_IDS[self.__dtype]
         d_lock = 0  # reserved
 
         values_1 = (
@@ -810,6 +805,11 @@ class BinaryWaveHeader5:
 
 
 class BinaryWaveHeader5Loader:
+    WAVETYPES = {0: 'text', 1: 'complex', 2: 'float32',
+                 4: 'float64', 8: 'int8', 0x10: 'int16', 0x20: 'int32',
+                 0x40: 'unsigned'}
+    DEFAULT_WAVE_NAME = 'wave'
+
     def __init__(self) -> None:
         pass
 
@@ -831,7 +831,7 @@ class BinaryWaveHeader5Loader:
 
         name = waveh_values['name']
         if name == ':wave name too long:':
-            name = DEFAULT_WAVE_NAME
+            name = self.DEFAULT_WAVE_NAME
             print('Warning: Long wave name is not supported. '
                   'Wave name is set to default ({}).'.format(name))
 
@@ -905,7 +905,8 @@ class BinaryWaveHeader5Loader:
         # datetime of last modification
         mod_datetime = self.__num_to_datetime(values_1[2])
         npnts = values_1[3]  # total number of points
-        dtype = cast(DTypes, WAVETYPES[values_1[4]])  # data type of wave
+        # data type of wave
+        dtype = cast(IBWDType, self.WAVETYPES[values_1[4]])
         if dtype in ('text', 'complex', 'unsigned'):
             raise TypeError('{} wave is not supported'.format(dtype))
 

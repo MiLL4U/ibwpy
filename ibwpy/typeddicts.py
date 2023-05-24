@@ -3,7 +3,7 @@ from typing import Tuple, Union
 
 from typing_extensions import TypedDict
 
-from .constants import DTypes
+from .constants import IBWDType
 
 
 class BinaryHeaderValues(TypedDict):
@@ -17,7 +17,7 @@ class BinaryHeaderValues(TypedDict):
 class WaveHeaderValues(TypedDict):
     creation_datetime: datetime.datetime
     mod_datetime: datetime.datetime
-    dtype: DTypes
+    dtype: IBWDType
     name: str
     shape: Tuple[int, ...]
     axes_delta: Tuple[float, float, float, float]
