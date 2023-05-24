@@ -7,14 +7,17 @@ Provides
   2. Interfaces to edit ibw files as NumPy array
 """
 
+from typing import List, Tuple, Union
+
 import numpy as np
-from typing import Union, List, Tuple
-from .main import DTypes, DEFAULT_DTYPE
-from .main import BinaryWave5, BinaryWaveHeader5, BinaryWave5Loader
+
+from .constants import DEFAULT_DTYPE, IBWDType
+from .igorbinarywave import BinaryWave5, BinaryWave5Loader
+from .waveheader import BinaryWaveHeader5
 
 
 def make(shape: Union[List[int], Tuple[int, ...]],
-         name: str, dtype: DTypes = DEFAULT_DTYPE) -> BinaryWave5:
+         name: str, dtype: IBWDType = DEFAULT_DTYPE) -> BinaryWave5:
     shape_tuple = tuple(shape)
     header = BinaryWaveHeader5(shape=shape_tuple, name=name, dtype=dtype)
     zeros = np.zeros(shape, dtype=dtype)
