@@ -7,10 +7,13 @@ Provides
   2. Interfaces to edit ibw files as NumPy array
 """
 
+from typing import List, Tuple, Union
+
 import numpy as np
-from typing import Union, List, Tuple
-from .constants import IBWDType, DEFAULT_DTYPE
-from .main import BinaryWave5, BinaryWaveHeader5, BinaryWave5Loader
+
+from .constants import DEFAULT_DTYPE, IBWDType
+from .igorbinarywave import BinaryWave5, BinaryWave5Loader
+from .waveheader import BinaryWaveHeader5
 
 
 def make(shape: Union[List[int], Tuple[int, ...]],
