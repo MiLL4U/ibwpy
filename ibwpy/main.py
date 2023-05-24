@@ -8,13 +8,15 @@ from functools import reduce
 from typing import List, Tuple, Union, cast
 
 import numpy as np
-from typing_extensions import Literal, TypedDict
+
+from .constants import DTypes
+from .typeddicts import BinaryHeaderValues, SectionSizes, WaveHeaderValues
 
 BIN_HEADER_SIZE = 64
 WAVE_HEADER_SIZE = 320
 MAX_WFM_SIZE = 2 ** 32 // 2 - 1
 VALID_DTYPES = ['float32', 'float64', 'int8', 'int16', 'int32']
-DTypes = Literal['float32', 'float64', 'int8', 'int16', 'int32']
+
 
 WAVETYPES = {0: 'text', 1: 'complex', 2: 'float32',
              4: 'float64', 8: 'int8', 0x10: 'int16', 0x20: 'int32',
@@ -689,10 +691,10 @@ class BinaryWaveHeader5:
         return res
 
     @property
-    def section_sizes(self) -> __SectionSizes:
+    def section_sizes(self) -> SectionSizes:
         value_size = self.__npnts * self.__type_size
 
-        res: __SectionSizes = {
+        res: SectionSizes = {
             'value_size': value_size,
             'formula_size': self.formula_size,
             'note_size': self.note_size,
@@ -863,7 +865,8 @@ class BinaryWaveHeader5Loader:
 
         return header
 
-    def __unpack_binary_header(self, bin_header: bytes) -> __BinaryHeaderValues:
+    def __unpack_binary_header(self, bin_header: bytes
+                               ) -> BinaryHeaderValues:
         # 64 bytes
         values = struct.unpack("2h15i", bin_header)
 
@@ -883,7 +886,7 @@ class BinaryWaveHeader5Loader:
         if is_text_wave:
             raise TypeError('text wave is not supported')
 
-        res: __BinaryHeaderValues = {
+        res: BinaryHeaderValues = {
             'formula_size': formula_size,
             'note_size': note_size,
             'data_unit_size': data_unit_size,
@@ -892,7 +895,7 @@ class BinaryWaveHeader5Loader:
 
         return res
 
-    def __unpack_wave_header(self, wave_header: bytes) -> __WaveHeaderValues:
+    def __unpack_wave_header(self, wave_header: bytes) -> WaveHeaderValues:
 
         # 1st section (20 bytes)
         header_1 = wave_header[0:20]
@@ -941,7 +944,7 @@ class BinaryWaveHeader5Loader:
         # skip following headers (104 + 28 bytes)
         # format: i4i4ii16i, hhhcciihhii
 
-        res: __WaveHeaderValues = {
+        res: WaveHeaderValues = {
             'creation_datetime': creation_datetime,
             'mod_datetime': mod_datetime,
             'dtype': dtype,
@@ -956,33 +959,3 @@ class BinaryWaveHeader5Loader:
 
     def __num_to_datetime(self, num: int) -> datetime.datetime:
         return DATETIME_OFFSET + datetime.timedelta(seconds=num)
-
-
-class __BinaryHeaderValues(TypedDict):
-    formula_size: int
-    note_size: int
-    data_unit_size: int
-    axes_unit_size: Tuple[int, int, int, int]
-    axes_label_size: Tuple[int, int, int, int]
-
-
-class __WaveHeaderValues(TypedDict):
-    creation_datetime: datetime.datetime
-    mod_datetime: datetime.datetime
-    dtype: DTypes
-    name: str
-    shape: Tuple[int, ...]
-    axes_delta: Tuple[float, float, float, float]
-    axes_start: Tuple[float, float, float, float]
-    data_unit: str
-    axes_unit: Tuple[str, str, str, str]
-    data_scale: Union[Tuple[float, float], None]
-
-
-class __SectionSizes(TypedDict):
-    value_size: int
-    formula_size: int
-    note_size: int
-    ex_data_unit_size: int
-    ex_axes_unit_size: Tuple[int, int, int, int]
-    axes_label_size: Tuple[int, int, int, int]
