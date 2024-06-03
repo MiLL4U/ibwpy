@@ -32,17 +32,18 @@ class BinaryWaveHeader5:
             self, shape: Tuple[int, ...], name: str, dtype: str = DEFAULT_DTYPE,
             formula_size: int = 0, note_size: int = 0,
             data_unit: Union[str, int] = '',  # unit or size (if extended unit)
-            axes_unit: Tuple[Union[str, int], Union[str, int],  # default: '' x4
-                             Union[str, int], Union[str, int]] = None,
-            axes_start: Tuple[float, float, float,
-                              float] = None,  # default: 0. x 4
-            axes_delta: Tuple[float, float, float,
-                              float] = None,  # default: 1. x 4
-            axes_label_size: Tuple[int, int, int,
-                                   int] = None,  # default: 0 x 4
+            axes_unit: Optional[
+                Tuple[Union[str, int], Union[str, int],  # default: '' x4
+                      Union[str, int], Union[str, int]]] = None,
+            axes_start: Optional[
+                Tuple[float, float, float, float]] = None,  # default: 0. x 4
+            axes_delta: Optional[
+                Tuple[float, float, float, float]] = None,  # default: 1. x 4
+            axes_label_size: Optional[
+                Tuple[int, int, int, int]] = None,  # default: 0 x 4
             creation_time: datetime.datetime = datetime.datetime.now(),
             modify_time: datetime.datetime = DATETIME_OFFSET,
-            data_scale: Union[Tuple[float, float], None] = None) -> None:
+            data_scale: Optional[Tuple[float, float]] = None) -> None:
         if not self.is_valid_name(name):
             raise ValueError('invalid name')
         self.__name = name
