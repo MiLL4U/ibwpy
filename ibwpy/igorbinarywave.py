@@ -5,7 +5,7 @@ import re
 import struct
 from copy import deepcopy
 from functools import reduce
-from typing import List, Tuple, Union, Optional
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 

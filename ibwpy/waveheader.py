@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime
 import struct
 from functools import reduce
-from typing import List, Tuple, Union, cast
+from typing import List, Optional, Tuple, Union, cast
 
 import numpy as np
 
