@@ -5,7 +5,7 @@ import re
 import struct
 from copy import deepcopy
 from functools import reduce
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 import numpy as np
 
@@ -21,7 +21,7 @@ class BinaryWave5:
                  ibw_header: BinaryWaveHeader5,
                  wave_values: np.ndarray,
                  data_unit: str = '',
-                 axes_unit: List[str] = None,
+                 axes_unit: Optional[List[str]] = None,
                  dependency_formula: str = '',
                  note: str = '',
                  # axes_label: List[List[str]] = None,
@@ -306,7 +306,7 @@ class BinaryWave5:
         res.__initialize_modify_time()
         return res
 
-    def save(self, path: str = None) -> None:
+    def save(self, path: Optional[str] = None) -> None:
         header_buf = self.__header.buffer
         values_buf = self.__values.tobytes(order='F')
 
