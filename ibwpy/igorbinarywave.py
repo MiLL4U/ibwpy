@@ -5,23 +5,21 @@ import re
 import struct
 from copy import deepcopy
 from functools import reduce
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
 from .commonfunc import decode_unicode
-from .constants import TEXT_ENCODE, WAVE_HEADER_SIZE
+from .constants import DEFAULT_EOL, TEXT_ENCODE, WAVE_HEADER_SIZE
 from .waveheader import BinaryWaveHeader5, BinaryWaveHeader5Loader
 
 
 class BinaryWave5:
-    DEFAULT_EOL = '\n'
-
     def __init__(self,
                  ibw_header: BinaryWaveHeader5,
                  wave_values: np.ndarray,
                  data_unit: str = '',
-                 axes_unit: List[str] = None,
+                 axes_unit: Optional[List[str]] = None,
                  dependency_formula: str = '',
                  note: str = '',
                  # axes_label: List[List[str]] = None,
@@ -39,11 +37,11 @@ class BinaryWave5:
 
         dependency_formula = self.__convert_eol(dependency_formula)
         self.__dependency_formula = dependency_formula
-        self.__header.formula_size = len(dependency_formula)
+        self.__header.formula_size = self.formula_size
 
         note = self.__convert_eol(note)
         self.__note = note
-        self.__header.note_size = len(note)
+        self.__header.note_size = self.note_size
 
     def __update_modify_time(self):
         self.__header.update_modify_time()
@@ -192,6 +190,14 @@ class BinaryWave5:
     def dependency_formula(self) -> str:
         return self.__dependency_formula
 
+    @property
+    def formula_buf(self) -> bytes:
+        return bytes(self.__dependency_formula, encoding=TEXT_ENCODE)
+
+    @property
+    def formula_size(self) -> int:
+        return len(self.formula_buf)
+
     def __convert_eol(self, string, to=DEFAULT_EOL):
         return re.sub(r'\r\n|\r|\n', to, string)
 
@@ -200,7 +206,7 @@ class BinaryWave5:
             raise TypeError('a string is required')
         formula = self.__convert_eol(formula)
         self.__dependency_formula = formula
-        self.__header.formula_size = len(formula)
+        self.__header.formula_size = self.formula_size
 
         self.__update_modify_time()
         return self
@@ -267,12 +273,20 @@ class BinaryWave5:
     def note(self) -> str:
         return self.__note
 
+    @property
+    def note_buf(self) -> bytes:
+        return bytes(self.__note, encoding=TEXT_ENCODE)
+
+    @property
+    def note_size(self) -> int:
+        return len(self.note_buf)
+
     def set_note(self, note: str) -> BinaryWave5:
         if not isinstance(note, str):
             raise TypeError('a string is required')
         note = self.__convert_eol(note)
         self.__note = note
-        self.__header.note_size = len(note)
+        self.__header.note_size = self.note_size
 
         self.__update_modify_time()
         return self
@@ -306,13 +320,12 @@ class BinaryWave5:
         res.__initialize_modify_time()
         return res
 
-    def save(self, path: str = None) -> None:
+    def save(self, path: Optional[str] = None) -> None:
         header_buf = self.__header.buffer
         values_buf = self.__values.tobytes(order='F')
 
-        dependency_formula_buf = bytes(
-            self.__dependency_formula, encoding=TEXT_ENCODE)
-        note_buf = bytes(self.__note, encoding=TEXT_ENCODE)
+        dependency_formula_buf = self.formula_buf
+        note_buf = self.note_buf
 
         if not self.__header.data_unit:
             ex_data_unit_buf = bytes(self.data_unit, encoding=TEXT_ENCODE)
