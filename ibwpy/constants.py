@@ -12,4 +12,4 @@ MAX_WAVE_NAME_LENGTH = 31
 
 TEXT_ENCODE = 'utf-8'
 TEXT_ENCODE_2ND = 'shift_jis'
-DEFAULT_EOL = '\n'
+DEFAULT_EOL = '\r'

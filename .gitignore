@@ -128,5 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Temporal files for develop
+# Temporary files for develop
 temp/

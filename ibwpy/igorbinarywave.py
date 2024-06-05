@@ -10,13 +10,11 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 
 from .commonfunc import decode_unicode
-from .constants import TEXT_ENCODE, WAVE_HEADER_SIZE
+from .constants import DEFAULT_EOL, TEXT_ENCODE, WAVE_HEADER_SIZE
 from .waveheader import BinaryWaveHeader5, BinaryWaveHeader5Loader
 
 
 class BinaryWave5:
-    DEFAULT_EOL = '\n'
-
     def __init__(self,
                  ibw_header: BinaryWaveHeader5,
                  wave_values: np.ndarray,
