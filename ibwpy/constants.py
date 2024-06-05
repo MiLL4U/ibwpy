@@ -2,6 +2,8 @@ import datetime
 
 from typing_extensions import Literal
 
+IBWPY_VERSION = "1.0.4"
+
 IBWDType = Literal['float32', 'float64', 'int8', 'int16', 'int32']
 DEFAULT_DTYPE: IBWDType = 'float32'
 

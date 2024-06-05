@@ -1,5 +1,7 @@
 import setuptools
 
+from ibwpy.constants import IBWPY_VERSION
+
 
 def _requires_from_file(filename):
     return open(filename).read().splitlines()
@@ -7,7 +9,7 @@ def _requires_from_file(filename):
 
 setuptools.setup(
     name="ibwpy",
-    version="1.0.3",
+    version=IBWPY_VERSION,
     install_requires=_requires_from_file('requirements.txt'),
     author="Hiroaki Takahashi",
     author_email="aphiloboe@gmail.com",
